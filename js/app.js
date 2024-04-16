@@ -287,6 +287,11 @@ function eliminarProducto(id){
   } else{
     mensajePedidoVacio();
   }
+
+  // El pedido se elimino por lo tanto regresamos la cantidad a 0 en el formulario
+  const productoEliminado = `#producto-${id}`
+  const inputEliminado = document.querySelector(productoEliminado);
+  inputEliminado.value = 0;
 }
 
 function mensajePedidoVacio(){
@@ -298,3 +303,4 @@ function mensajePedidoVacio(){
 
   contenido.appendChild(texto);
 }
+
