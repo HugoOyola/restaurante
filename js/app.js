@@ -142,8 +142,12 @@ function agregarPlatillo(producto) {
   // Limpiar el codigo HTML previo
   limpiarHTML()
 
-  // Mostrar el resumen
-  actualizarResumen()
+  if(cliente.pedido.length){
+    // Mostrar el resumen
+    actualizarResumen();
+  } else{
+    mensajePedidoVacio();
+  }
 }
 
 function actualizarResumen(){
@@ -180,11 +184,78 @@ function actualizarResumen(){
   heading.classList.add("my-4", "text-center");
 
   // Iterar sobre el array de pedido
+  const grupo =  document.createElement("UL");
+  grupo.classList.add("list-group");
+
+  const { pedido } = cliente;
+  pedido.forEach(articulo =>{
+    const { nombre, precio, cantidad, id } = articulo;
+
+    const lista = document.createElement('LI');
+    lista.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+
+    const nombreEl = document.createElement ('H4');
+    nombreEl.classList.add('my-4');
+    nombreEl.textContent = nombre;
+
+    // Cantidad del articulo
+    const cantidadEl = document.createElement('P');
+    cantidadEl.classList.add('fw-bold');
+    cantidadEl.textContent = 'Cantidad: ';
+
+    const cantidadValor = document.createElement('SPAN')
+    cantidadValor.classList.add('fw-normal');
+    cantidadValor.textContent = cantidad;
+
+    // Precio del articulo
+    const precioEl = document.createElement('P');
+    precioEl.classList.add('fw-bold');
+    precioEl.textContent = 'Precio: ';
+
+    const precioValor = document.createElement('SPAN');
+    precioValor.classList.add('fw-normal');
+    precioValor.textContent = `S/. ${precio}`;
+
+    // Subtotal del articulo
+    const subtotalEl = document.createElement('P');
+    subtotalEl.classList.add('fw-bold');
+    subtotalEl.textContent = 'Subtotal: ';
+
+    const subtotalValor = document.createElement('SPAN');
+    subtotalValor.classList.add('fw-normal');
+    subtotalValor.textContent = calcularSubtotal(precio, cantidad);
+
+    // Boton para eliminar el articulo
+    const btnEliminar = document.createElement('BUTTON');
+    btnEliminar.classList.add('btn', 'btn-danger');
+    btnEliminar.textContent = 'Eliminar del pedido';
+
+    // Funcion para eliminar el articulo
+    btnEliminar.onclick = function () {
+      eliminarProducto(id);
+    }
+
+    // Agregar valores a sus contenedores
+    cantidadEl.appendChild(cantidadValor);
+    precioEl.appendChild(precioValor);
+    subtotalEl.appendChild(subtotalValor);
+
+    // Agregar elementos al LI
+    lista.appendChild(nombreEl);
+    lista.appendChild(cantidadEl);
+    lista.appendChild(precioEl);
+    lista.appendChild(subtotalEl);
+    lista.appendChild(btnEliminar);
+
+    // Agregar lista al grupo principal
+    grupo.appendChild(lista);
+  })
 
   // Agregar al contenido
   resumen.appendChild(mesa);
   resumen.appendChild(hora);
   resumen.appendChild(heading);
+  resumen.appendChild(grupo);
 
   contenido.appendChild(resumen);
 }
@@ -195,4 +266,35 @@ function limpiarHTML(){
   while(contenido.firstChild){
     contenido.removeChild(contenido.firstChild);
   }
+}
+
+function calcularSubtotal(precio, cantidad){
+  return `S/. ${precio * cantidad}`;
+}
+
+function eliminarProducto(id){
+  const { pedido } = cliente;
+
+  const resultado = pedido.filter(articulo => articulo.id !== id);
+  cliente.pedido = [...resultado];
+
+  // Limpiar el HTML
+  limpiarHTML();
+
+  if(cliente.pedido.length){
+    // Mostrar el resumen
+    actualizarResumen();
+  } else{
+    mensajePedidoVacio();
+  }
+}
+
+function mensajePedidoVacio(){
+  const contenido =  document.querySelector("#resumen .contenido");
+
+  const texto = document.createElement('P');
+  texto.classList.add('text-center', 'fw-bold');
+  texto.textContent = 'No hay productos en el pedido';
+
+  contenido.appendChild(texto);
 }
